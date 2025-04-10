@@ -32,3 +32,92 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 //forgot password
+document.addEventListener("DOMContentLoaded", function () {
+    document.getElementById("submitGetCode").addEventListener('click', function() {
+
+        const username = document.getElementById("recoverPasswordId").value.trim();
+
+        if (!username) {
+            alert('Vui lòng nhập username');
+            return;
+        }
+
+        // Ẩn modal hiện tại
+        let recoverModal = bootstrap.Modal.getInstance(document.getElementById("recoverPassword"));
+        recoverModal.hide();
+
+        // Hiển thị modal tiếp theo
+        let submitModal = new bootstrap.Modal(document.getElementById("submitForm"));
+        submitModal.show();
+
+        getCode(username);
+
+    })
+});
+
+async function getCode(username) {
+    try {
+        const response = await fetch(`http://localhost:8086/api/v1/user/send-code-email?username=${username}`, {
+            method: "POST"
+        });
+
+        console.log(response)
+        const data = await response.json();
+        console.log(data)
+        if (!response.ok) {
+            throw new Error(data.message)
+        }
+
+        localStorage.setItem("username", username);
+    } catch(error) {
+        alert(error.message);
+    }
+} 
+
+
+document.getElementById("acceptSubmission").addEventListener("click", function () {
+    const code = document.getElementById("codeEmail").value.trim();
+    const newPassword = document.getElementById("newPassword").value.trim();
+    const username = localStorage.getItem("username"); 
+
+    if (!code || !newPassword) {
+        alert("Vui lòng nhập đầy đủ mã xác nhận và mật khẩu mới!");
+        return;
+    }
+
+    const formData = {
+        code: code,
+        newPassword: newPassword,
+        username: username
+    }
+
+    recoverPassword(formData);
+});
+
+async function recoverPassword(formData) {
+    try {
+        const response = await fetch('http://localhost:8086/api/v1/user/recover-password', {
+            method: "POST",
+            headers : {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(formData)
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message);
+        }
+
+        localStorage.removeItem("username");
+
+        alert("Mật khẩu đã được đặt lại thành công!");
+
+        // Ẩn modal sau khi hoàn thành
+        let submitModal = bootstrap.Modal.getInstance(document.getElementById("submitForm"));
+        submitModal.hide();
+    } catch(error) {
+        alert(error.message);
+    }
+}
