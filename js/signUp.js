@@ -13,6 +13,13 @@ async function register(formData) {
 
 
         if (!response.ok) {
+            if (data.message === "INVALID_FIELD" && typeof data.error === "object") {
+                // Gộp tất cả lỗi lại thành 1 chuỗi
+                const errorMessages = Object.entries(data.error)
+                    .map(([field, message]) => `${field}: ${message}`)
+                    .join("\n");
+                throw new Error(errorMessages);
+            }
             throw new Error(data.message);
         }
         localStorage.setItem("token", data.accessToken);
