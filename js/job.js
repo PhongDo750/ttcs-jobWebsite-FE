@@ -17,6 +17,27 @@ document.getElementById("searchButton").addEventListener("click", function () {
     const maxSalary = document.getElementById("maxSalary").value;
     const educationLevel = document.getElementById("educationLevel").value;
 
+    // Hàm kiểm tra số dương hợp lệ cho lương
+    function isValidSalary(value) {
+        return /^[0-9]+(\.[0-9]{1,2})?$/.test(value) && parseFloat(value) >= 0;
+    }
+
+    // Kiểm tra lương
+    if (minSalary && !isValidSalary(minSalary)) {
+        alert("Mức lương tối thiểu phải là số dương hợp lệ");
+        return; // Dừng việc gọi API nếu lương không hợp lệ
+    }
+
+    if (maxSalary && !isValidSalary(maxSalary)) {
+        alert("Mức lương tối đa phải là số dương hợp lệ");
+        return; // Dừng việc gọi API nếu lương không hợp lệ
+    }
+
+    if (minSalary && maxSalary && parseFloat(minSalary) > parseFloat(maxSalary)) {
+        alert("Mức lương tối thiểu không được lớn hơn mức lương tối đa");
+        return; // Dừng việc gọi API nếu minSalary > maxSalary
+    }
+
     // Tạo object chứa tham số lọc
     const filters = {
         jobName: jobName || null,
@@ -31,16 +52,18 @@ document.getElementById("searchButton").addEventListener("click", function () {
     };
 
     dynamicFilters = filters;
-
     // Gọi API
     fetchJobs(dynamicFilters, currentPage, pageSize);
 });
+
 
 function fetchJobs(filters, currentPage, pageSize) {
     const baseUrl = "http://localhost:8086/api/v1/job/filter";
     const filteredParams = Object.fromEntries(
         Object.entries(filters).filter(([_, value]) => value !== null && value !== "")
     );
+
+    console.log("currentPage: ", currentPage);
 
     const queryParams = new URLSearchParams(filteredParams).toString();
     const url = `${baseUrl}?${queryParams}&page=${currentPage}&size=${pageSize}`;
@@ -240,12 +263,11 @@ document.getElementById("clearFeild").addEventListener("click", function () {
 
 document.addEventListener("DOMContentLoaded", function () {
     const savedFilters = JSON.parse(localStorage.getItem("dynamicFilters")) || {};
-    const savedPage = localStorage.getItem("currentPage");
-    console.log(savedFilters);
+    const savedPage = parseInt(localStorage.getItem("currentPage")) || 0;
+
     if (savedFilters === null) {
         fetchJobs(" ", currentPage, pageSize);
     } else {
         fetchJobs(savedFilters, savedPage, pageSize);
     }
-    console.log("da vao");
 });
