@@ -22,7 +22,7 @@ async function loginRequest(username, password) {
         }
         throw new Error(data.message);
     }
-    console.log(data)
+    console.log(data.role);
 
     localStorage.setItem("token", data.accessToken);
     localStorage.setItem("role", data.role);
@@ -30,7 +30,7 @@ async function loginRequest(username, password) {
     if (data.role === 'USER') {
         window.location.href = "/components/main.html";
     } else if(data.role === 'RECRUITER'){
-        window.location.href = "/components/recruiter-info/recruiter-info.html";
+        window.location.href = "/components/recruiter/recruiter.html";
     } else {
         window.location.href = "/components/admin/admin.html";
     }
