@@ -165,6 +165,83 @@
                         </button>
                     </div>
                 </div>
+
+                <div id="get-job" class="tab-pane fade">
+                    <h2 class="mb-3">Danh sách ứng viên</h2>
+                    <select id="jobState" class="form-select w-25" onchange="loadJobsByState(); toggleActionColumn()">
+                        <option value="ALL">Tất cả</option>
+                        <option value="PENDING_APPROVAL">Chờ xét duyệt</option>
+                        <option value="ACCEPTED">Đã duyệt</option>
+                        <option value="REJECTED">Từ chối</option>
+                    </select>
+        
+                    <div id="job-list" class="mt-4">
+                        <table class="table table-bordered">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Tên ứng viên</th>
+                                    <th>Hồ sơ ứng viên</th>
+                                    <th>Tin đăng</th>
+                                    <th>Thời gian nộp</th>
+                                    <th class="action-column">Hành động</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="jobs">
+
+                            </tbody>
+
+                        </table>
+                    </div>
+
+                    <div id="pagination-1" class="d-flex justify-content-center mt-3 w-80-custom">
+                            
+                    </div>
+                </div>
+
+                <div id="change-info" class="tab-pane fade">
+                    <h2>Chỉnh sửa thông tin</h2>
+                    <div class="row align-items-center">
+                        <div class="col-6">
+                            <label for="nameCompany">Tên công ty</label>
+                            <input class="form-control mt-2" id="nameCompany" placeholder="Nhập tên công ty">
+                        </div>
+
+                        <div class="col-6">
+                            <div class="ms-4">
+                                <img id="avatarPreview" src="/assets/image/landing_page_right.webp" class="previewImage w-25 me-4">
+                                <label for="imageCompany" class="btn btn-outline-primary">Thay đổi ảnh đại diện</label>
+                                <input type="file" id="imageCompany" class="d-none imageInput">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row align-items-center mt-4">
+                        <div class="col-6">
+                            <label for="address-1">Địa chỉ</label>
+                            <input class="form-control mt-2" id="address-1" placeholder="Nhập địa chỉ">
+                        </div>
+
+                        <div class="col-6">
+                            <div class="ms-4">
+                                <img id="backgroundPreview" src="/assets/image/landing_page_right.webp" class="previewImage w-25 me-4">
+                                <label for="backgroundImg" class="btn btn-outline-primary">Thay đổi ảnh nền</label>
+                                <input type="file" id="backgroundImg" class="d-none imageInput">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-column mt-2">
+                        <label>Mô tả công ty<span class="text-danger">*</span></label>
+                        <textarea id="editor4"></textarea>
+                    </div>
+
+                    <div class="d-flex justify-content-end mt-4">
+                        <button id="updateInfomationCompany" class="btn bg-custom text-white-custom">
+                            Thay đổi thông tin
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

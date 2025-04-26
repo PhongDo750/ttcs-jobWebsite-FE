@@ -51,7 +51,7 @@ async function getJobDescription(jobId) {
 
                 <div class="d-flex flex-column mb-2">
                     <div class="d-flex align-items-center">
-                        <img src="${job.userOutput.imageUrl}" class="rounded-circle w-15-custom">
+                        <img src="${job.userOutput.imageUrl}" class="w-15-custom">
         
                         <div class="ms-5">
                             <p class="my-3 fs-3">${job.jobName}</p>

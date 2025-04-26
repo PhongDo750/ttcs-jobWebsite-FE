@@ -33,12 +33,14 @@ async function getInfomationUser() {
         }
 
         const recruiter = result.data;
+        localStorage.setItem("bgImg", recruiter.backgroundImage);
+        localStorage.setItem("avatarImg", recruiter.imageUrl);
         const recruiterInfoContainer = document.getElementById('recruiter-info');
         recruiterInfoContainer.innerHTML = '';
 
         const infoHTML = `
             <div class="banner-container">
-                <img src="/assets/image/company_cover_1.webp" alt="Ảnh nền">
+                <img src="${recruiter.backgroundImage}" alt="Ảnh nền">
             </div>
                     
             <div class="profile-container d-flex">
@@ -116,7 +118,7 @@ function renderJobs(jobs) {
             <div class="position-relative job-card shadow p-2 mt-4">
                 <div class="d-flex flex-column mb-2">
                     <div class="d-flex align-items-center">
-                        <img src="${job.imageUrl}" class="rounded-circle w-10">
+                        <img src="${job.imageUrl}" class="w-15-custom">
         
                         <div class="ms-3">
                             <p class="my-2">${job.jobName}</p>
@@ -302,9 +304,256 @@ function updatePagination(data, paginationId) {
     if (currentPageRecruiter < totalPages - 1) createButton(currentPageRecruiter + 1, '»');
 }
 
+document.querySelector('a[href="#get-job"]').addEventListener('shown.bs.tab', () => {
+    currentPageRecruiter = 0;
+    loadJobsByState();
+});
+
+async function loadJobsByState() {
+    try {
+        const state = document.getElementById('jobState').value;
+        const accessToken = localStorage.getItem('token');
+
+        const response = await fetch(`http://localhost:8086/api/v1/recruiter/state?state=${state}&page=${currentPageRecruiter}&size=${pageSizeRecruiter}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${accessToken}`
+            }
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            if (result.message === "INVALID_FIELD" && typeof result.error === "object") {
+                // Gộp tất cả lỗi lại thành 1 chuỗi
+                const errorMessages = Object.entries(result.error)
+                    .map(([field, message]) => `${field}: ${message}`)
+                    .join("\n");
+                throw new Error(errorMessages);
+            }
+            throw new Error(result.message);
+        }
+
+        const jobs = result.content;
+        const jobListContent = document.getElementById('jobs'); // Đây là <tbody>
+        jobListContent.innerHTML = ''; // Xóa nội dung cũ
+
+        jobs.forEach(job => {
+            const jobItem = document.createElement('tr'); // Tạo <tr>
+
+            jobItem.innerHTML = `
+                <td>${job.userOutput.fullName}</td>
+                <td><a href="${job.cvUrl}" target="_blank">Xem hồ sơ</a></td>
+                <td>${job.jobName}</td>
+                <td>${job.expirationDate}</td>
+                ${state === "PENDING_APPROVAL" ? `
+                <td>
+                    <button class="btn bg-custom btn-sm accept-btn" data-job-id="${job.id}">Chấp nhận</button>
+                    <button class="btn btn-danger btn-sm reject-btn" data-job-id="${job.id}">Từ chối</button>
+                </td>` : ''}
+            `;
+
+            jobListContent.appendChild(jobItem);
+        });
+
+        // Gán sự kiện sau khi DOM đã cập nhật
+        document.querySelectorAll(".accept-btn").forEach(button => {
+            button.addEventListener("click", (event) => {
+                const jobId = event.target.dataset.jobId;
+                acceptApplication(jobId);
+            });
+        });
+
+        document.querySelectorAll(".reject-btn").forEach(button => {
+            button.addEventListener("click", (event) => {
+                const jobId = event.target.dataset.jobId;
+                rejectApplication(jobId);
+            });
+        });
+
+        updatePagination(result, "pagination-1");
+    } catch (error) {
+        console.error('Error loading jobs:', error);
+    }
+}
+
+async function acceptApplication(id) {
+    const accessToken = localStorage.getItem("token");
+    try {
+        const response = await fetch(`http://localhost:8086/api/v1/recruiter/accept?recruiterJobId=${id}`, {
+            method: "POST",
+            headers : {
+                'Authorization': `Bearer ${accessToken}`
+            }
+        })
+
+        const result = await response.json()
+
+        if (!response.ok) {
+            if (result.message === "INVALID_FIELD" && typeof result.error === "object") {
+                // Gộp tất cả lỗi lại thành 1 chuỗi
+                const errorMessages = Object.entries(result.error)
+                    .map(([field, message]) => `${field}: ${message}`)
+                    .join("\n");
+                throw new Error(errorMessages);
+            }
+            throw new Error(result.message);
+        }
+
+        alert("Xét duyệt thành công");
+        loadJobsByState();
+    } catch (error) {
+        alert(error.message);
+    }
+}
+
+async function rejectApplication(id) {
+    const accessToken = localStorage.getItem("token");
+    try {
+        const response = await fetch(`http://localhost:8086/api/v1/recruiter/reject?recruiterJobId=${id}`, {
+            method: "POST",
+            headers : {
+                'Authorization': `Bearer ${accessToken}`
+            }
+        })
+
+        const result = await response.json()
+
+        if (!response.ok) {
+            if (result.message === "INVALID_FIELD" && typeof result.error === "object") {
+                // Gộp tất cả lỗi lại thành 1 chuỗi
+                const errorMessages = Object.entries(result.error)
+                    .map(([field, message]) => `${field}: ${message}`)
+                    .join("\n");
+                throw new Error(errorMessages);
+            }
+            throw new Error(result.message);
+        }
+
+        alert("Bạn đã từ chối ứng viên");
+        loadJobsByState();
+    } catch (error) {
+        alert(error.message);
+    }
+}
+
+function toggleActionColumn() {
+    const selectedState = document.getElementById("jobState").value;
+    const actionColumns = document.querySelectorAll(".action-column"); // Lấy tất cả cột "Hành động"
+    
+    if (selectedState === "PENDING_APPROVAL") {
+        actionColumns.forEach(col => col.style.display = "table-cell"); // Hiện cột
+    } else {
+        actionColumns.forEach(col => col.style.display = "none"); // Ẩn cột
+    }
+}
+
+document.querySelectorAll('.imageInput').forEach(input => {
+    input.addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const imageUrl = URL.createObjectURL(file);
+            const previewImage = this.previousElementSibling.previousElementSibling; // Lấy đúng ảnh cùng cha
+            previewImage.src = imageUrl;
+        }
+    });
+});
+
+document.getElementById('updateInfomationCompany').addEventListener('click', () => {
+    setTimeout(() => {
+        CKEDITOR.instances['editor4'].updateElement();
+        changeInfoCompany();
+    }, 100);
+})
+
+async function changeInfoCompany() {
+    try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            alert("Bạn cần đăng nhập trước khi thay đổi thông tin!");
+            return;
+        }
+
+        const fullName = document.getElementById('nameCompany').value;
+        const address = document.getElementById('address-1').value;
+        const avatar = document.getElementById("imageCompany").files[0];
+        const backgroundImg = document.getElementById('backgroundImg').files[0];
+        const description = cleanCKEditorContent(CKEDITOR.instances['editor4'].getData());
+
+        // Chuẩn bị dữ liệu JSON
+        const userData = {
+            fullName,
+            address,
+            description
+        };
+
+        // Tạo FormData để gửi ảnh và JSON cùng lúc
+        const formData = new FormData();
+        formData.append("new_user_info", JSON.stringify(userData)); // Dữ liệu người dùng dạng JSON
+        if (avatar) {
+            formData.append("image", avatar); // Nếu có ảnh, thêm vào FormData
+        }
+
+        if (backgroundImg) {
+            formData.append("background_img", backgroundImg);
+        }
+
+        const submitButton = document.getElementById("updateInfomationCompany");
+        submitButton.disabled = true;
+        submitButton.innerHTML = `<span class="spinner-border spinner-border-sm"></span> Đang gửi...`;
+
+        // Gọi API cập nhật thông tin
+        const response = await fetch("http://localhost:8086/api/v1/user/change-user-information", {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${token}`
+            },
+            body: formData // Gửi dữ liệu dạng multipart/form-data
+        });
+
+        const result = await response.json();
+        if (!response.ok) {
+            if (result.message === "INVALID_FIELD" && typeof result.error === "object") {
+                // Gộp tất cả lỗi lại thành 1 chuỗi
+                const errorMessages = Object.entries(result.error)
+                    .map(([field, message]) => `${field}: ${message}`)
+                    .join("\n");
+                throw new Error(errorMessages);
+            }
+            throw new Error(result.message);
+        }
+
+        alert("Cập nhật thông tin thành công!");
+        localStorage.setItem("bgImg", backgroundImg);
+        localStorage.setItem("avatarImg", avatar);
+        location.reload();
+    } catch (error) {
+        alert(`Lỗi cập nhật: ${error.message}`);
+    } finally {
+        const submitButton = document.getElementById("updateInfomationCompany");
+        submitButton.disabled = false;
+        submitButton.innerHTML = "Thay đổi thông tin";
+    }
+}
+
+
 document.addEventListener("DOMContentLoaded", function () {
     getInfomationUser();
     getJobOfRecruiter(currentPageRecruiter, pageSizeRecruiter);
     if (document.getElementById('editor1')) CKEDITOR.replace('editor1');
     if (document.getElementById('editor2')) CKEDITOR.replace('editor2');
+    if (document.getElementById('editor3')) CKEDITOR.replace('editor3');
+    if (document.getElementById('editor4')) CKEDITOR.replace('editor4');
+    loadJobsByState();
+
+    const avatarImg = localStorage.getItem('avatarImg');
+    const bgImg = localStorage.getItem('bgImg');
+
+    if (avatarImg) {
+        document.getElementById('avatarPreview').src = avatarImg;
+    }
+
+    if (bgImg) {
+        document.getElementById('backgroundPreview').src = bgImg;
+    }
 });

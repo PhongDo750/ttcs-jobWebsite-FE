@@ -131,7 +131,7 @@ function renderJobs(jobs) {
     
                 <div class="d-flex flex-column mb-2">
                     <div class="d-flex align-items-center">
-                        <img src="${job.imageUrl}" class="rounded-circle w-10">
+                        <img src="${job.imageUrl}" class="w-10">
         
                         <div class="ms-3">
                             <p class="my-2">${job.jobName}</p>
