@@ -21,13 +21,13 @@
             <a class="nav-link active" data-bs-toggle="tab" href="#info">Thông tin công ty</a>
         </li>
         <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="tab" href="#change-info">Thay đổi thông tin</a>
+        </li>
+        <li class="nav-item">
             <a class="nav-link" data-bs-toggle="tab" href="#post-job">Đăng tin tuyển dụng</a>
         </li>
         <li class="nav-item">
             <a class="nav-link" data-bs-toggle="tab" href="#get-job">Thông tin tuyển dụng</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" data-bs-toggle="tab" href="#change-info">Thay đổi thông tin</a>
         </li>
     </ul>
 
@@ -48,6 +48,50 @@
                         <div id="pagination" class="d-flex justify-content-center mt-3 w-80-custom">
                             <!-- Buttons will be dynamically inserted here -->
                         </div>
+                    </div>
+                </div>
+
+                <div id="change-info" class="tab-pane fade">
+                    <h2>Chỉnh sửa thông tin</h2>
+                    <div class="row align-items-center">
+                        <div class="col-6">
+                            <label for="nameCompany">Tên công ty</label>
+                            <input class="form-control mt-2" id="nameCompany" placeholder="Nhập tên công ty">
+                        </div>
+
+                        <div class="col-6">
+                            <div class="ms-4">
+                                <img id="avatarPreview" src="/assets/image/landing_page_right.webp" class="previewImage w-25 me-4">
+                                <label for="imageCompany" class="btn btn-outline-primary">Thay đổi ảnh đại diện</label>
+                                <input type="file" id="imageCompany" class="d-none imageInput">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row align-items-center mt-4">
+                        <div class="col-6">
+                            <label for="address-1">Địa chỉ</label>
+                            <input class="form-control mt-2" id="address-1" placeholder="Nhập địa chỉ">
+                        </div>
+
+                        <div class="col-6">
+                            <div class="ms-4">
+                                <img id="backgroundPreview" src="/assets/image/landing_page_right.webp" class="previewImage w-25 me-4">
+                                <label for="backgroundImg" class="btn btn-outline-primary">Thay đổi ảnh nền</label>
+                                <input type="file" id="backgroundImg" class="d-none imageInput">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-column mt-2">
+                        <label>Mô tả công ty<span class="text-danger">*</span></label>
+                        <textarea id="editor4"></textarea>
+                    </div>
+
+                    <div class="d-flex justify-content-end mt-4">
+                        <button id="updateInfomationCompany" class="btn bg-custom text-white-custom">
+                            Thay đổi thông tin
+                        </button>
                     </div>
                 </div>
     
@@ -199,47 +243,118 @@
                     </div>
                 </div>
 
-                <div id="change-info" class="tab-pane fade">
-                    <h2>Chỉnh sửa thông tin</h2>
-                    <div class="row align-items-center">
-                        <div class="col-6">
-                            <label for="nameCompany">Tên công ty</label>
-                            <input class="form-control mt-2" id="nameCompany" placeholder="Nhập tên công ty">
+                <div id="editJobForm" style="display: none;" class="mt-4">
+                    <h5 class="text-blod w-100">Thông tin cơ bản</h5>
+                    <div class="d-flex flex-column">
+                        <label for="name-job-edit">Tiêu đề tuyển dụng <span class="text-danger">*</span></label>
+                        <input class="form-control" id="name-job-edit" placeholder="Nhập công việc tuyển dụng">
+                    </div>
+    
+                    <div class="row align-items-center mt-2">
+                        <div class="col-5 d-flex flex-column position-relative dropdown">
+                            <label for="occupation-edit">Ngành nghề <span class="text-danger">*</span></label>
+                            <input class="form-control  dropdown-toggle" id="occupation-edit" placeholder="Chọn ngành nghề">
+                            <i class="fa-solid fa-caret-down position-absolute" 
+                            style="top: 70%; right: 20px; transform: translateY(-50%); color: gray;"></i>
+                            <ul class="dropdown-menu scroll-custom mt-custom-recruiter" id="occupationList"></ul>
                         </div>
-
-                        <div class="col-6">
-                            <div class="ms-4">
-                                <img id="avatarPreview" src="/assets/image/landing_page_right.webp" class="previewImage w-25 me-4">
-                                <label for="imageCompany" class="btn btn-outline-primary">Thay đổi ảnh đại diện</label>
-                                <input type="file" id="imageCompany" class="d-none imageInput">
-                            </div>
+    
+                        <div class="col-3 d-flex flex-column position-relative dropdown">
+                            <label for="experience-edit">Kinh nghiệm<span class="text-danger">*</span></label>
+                            <input class="form-control dropdown-toggle" id="experience-edit" placeholder="Chọn kinh nghiệm">
+                            <i class="fa-solid fa-caret-down position-absolute" 
+                            style="top: 70%; right: 20px; transform: translateY(-50%); color: gray;"></i>
+                            <ul class="dropdown-menu scroll-custom mt-custom-recruiter" id="experienceList"></ul>
+                        </div>
+    
+                        <div class="col-2 d-flex flex-column position-relative">
+                            <label for="head-count-edit">Số lượng tuyển<span class="text-danger">*</span></label>
+                            <input class="form-control" id="head-count-edit" placeholder="Nhập số lượng">
+                        </div>
+    
+                        <div class="col-2 d-flex flex-column position-relative">
+                            <label for="expiration-date-edit">Ngày hết hạn<span class="text-danger">*</span></label>
+                            <input type="date" class="form-control" id="expiration-date-edit" placeholder="Ngày hết hạn">
                         </div>
                     </div>
-
-                    <div class="row align-items-center mt-4">
-                        <div class="col-6">
-                            <label for="address-1">Địa chỉ</label>
-                            <input class="form-control mt-2" id="address-1" placeholder="Nhập địa chỉ">
+    
+                    <div class="row align-items-center mt-2">
+                        <div class="col-5 d-flex flex-column position-relative dropdown">
+                            <label for="province-edit">Tỉnh/Thành phố <span class="text-danger">*</span></label>
+                            <input class="form-control dropdown-toggle" id="province-edit" placeholder="Chọn thành phố">
+                            <i class="fa-solid fa-caret-down position-absolute" 
+                            style="top: 70%; right: 20px; transform: translateY(-50%); color: gray;"></i>
+                            <ul class="dropdown-menu scroll-custom mt-custom-recruiter" id="provinceList"></ul>
                         </div>
-
-                        <div class="col-6">
-                            <div class="ms-4">
-                                <img id="backgroundPreview" src="/assets/image/landing_page_right.webp" class="previewImage w-25 me-4">
-                                <label for="backgroundImg" class="btn btn-outline-primary">Thay đổi ảnh nền</label>
-                                <input type="file" id="backgroundImg" class="d-none imageInput">
-                            </div>
+    
+                        <div class="col-7 d-flex flex-column">
+                            <label for="address-edit">Địa chỉ<span class="text-danger">*</span></label>
+                            <input class="form-control" id="address-edit" placeholder="Nhập địa chỉ">
                         </div>
                     </div>
-
-                    <div class="d-flex flex-column mt-2">
-                        <label>Mô tả công ty<span class="text-danger">*</span></label>
-                        <textarea id="editor4"></textarea>
+    
+                    <h5 class="text-blod w-100 mt-4">Yêu cầu công việc</h5>
+                    <div class="row align-items-center mt-2">
+                        <div class="col-5 d-flex flex-column position-relative dropdown">
+                            <label for="job-type-edit">Hình thức làm việc<span class="text-danger">*</span></label>
+                            <input class="form-control dropdown-toggle" id="jobType-edit" placeholder="Chọn hình thức làm việc">
+                            <i class="fa-solid fa-caret-down position-absolute" 
+                            style="top: 70%; right: 20px; transform: translateY(-50%); color: gray;"></i>
+                            <ul class="dropdown-menu scroll-custom mt-custom-recruiter" id="jobTypeList"></ul>
+                        </div>
+    
+                        <div class="col-3 d-flex flex-column position-relative dropdown">
+                            <label for="job-level-edit">Cấp bậc<span class="text-danger">*</span></label>
+                            <input class="form-control dropdown-toggle" id="jobLevel-edit" placeholder="Chọn cấp bậc">
+                            <i class="fa-solid fa-caret-down position-absolute" 
+                            style="top: 70%; right: 20px; transform: translateY(-50%); color: gray;"></i>
+                            <ul class="dropdown-menu scroll-custom mt-custom-recruiter" id="jobLevelList"></ul>
+                        </div>
+    
+                        <div class="col-2 d-flex flex-column">
+                            <label for="min-salary-edit">Lương tối thiểu<span class="text-danger">*</span></label>
+                            <input class="form-control" id="min-salary-edit" placeholder="Nhập lương tối thiểu">
+                        </div>
+    
+                        <div class="col-2 d-flex flex-column">
+                            <label for="max-salary">Lương tối đa<span class="text-danger">*</span></label>
+                            <input class="form-control" id="max-salary-edit" placeholder="Nhập lương tối đa">
+                        </div>
                     </div>
-
-                    <div class="d-flex justify-content-end mt-4">
-                        <button id="updateInfomationCompany" class="btn bg-custom text-white-custom">
-                            Thay đổi thông tin
-                        </button>
+    
+                    <div class="row align-items-center mt-2">
+                        <div class="col-5 d-flex flex-column">
+                            <label for="probation-period">Thời gian thử việc</label>
+                            <input class="form-control" id="probation-period-edit" placeholder="Nhâp thời gian thử việc">
+                        </div>
+    
+                        <div class="col-3 d-flex flex-column">
+                            <label for="educationLevel">Bằng cấp</label>
+                            <input class="form-control" id="educationLevel-edit" placeholder="Chọn cấp bậc">
+                            <ul class="dropdown-menu scroll-custom mt-custom-recruiter" id="educationLevelList"></ul>
+                        </div>
+                    </div>
+    
+                    <h5 class="text-blod w-100 mt-4">Công việc chi tiết</h5>
+                    <div class="d-flex flex-column">
+                        <label>Mô tả chi tiết<span class="text-danger">*</span></label>
+                        <textarea id="editor1-1"></textarea>
+                    </div>
+    
+                    <div class="d-flex flex-column mt-4">
+                        <label>Yêu cầu chi tiết<span class="text-danger">*</span></label>
+                        <textarea id="editor2-2"></textarea>
+                    </div>
+    
+                    <div class="d-flex flex-column mt-4">
+                        <label>Quyền lợi<span class="text-danger">*</span></label>
+                        <textarea id="editor3-3"></textarea>
+                    </div>
+    
+                    <div class="d-flex justify-content-end mt-4 gap-2">
+                        <button id="cancelEditJob" class="btn btn-secondary">Huỷ</button>
+                        <button id="deleteJobBtn" class="btn btn-danger">Xóa</button>
+                        <button id="updateJobBtn" class="btn bg-custom text-white-custom">Thay đổi thông tin</button>
                     </div>
                 </div>
             </div>

@@ -1,6 +1,8 @@
 let currentPageRecruiter = 0;
 const pageSizeRecruiter= 5;
 document.querySelector('a[href="#info"]').addEventListener('shown.bs.tab', () => {
+    document.getElementById("editJobForm").style.display = "none";
+    document.getElementById("jobList").style.display = "block";
     getInfomationUser();
     getJobOfRecruiter(currentPageRecruiter, pageSizeRecruiter);
 });
@@ -141,6 +143,11 @@ function renderJobs(jobs) {
                 </div>
             </div>
         `;
+
+        jobItem.addEventListener('click', () => {
+            showEditForm(job.id);
+        });
+
         jobList.appendChild(jobItem);
     });
 }
@@ -165,10 +172,6 @@ document.getElementById('createJob').addEventListener('click', () => {
         CKEDITOR.instances['editor1'].updateElement();
         CKEDITOR.instances['editor2'].updateElement();
         CKEDITOR.instances['editor3'].updateElement();
-
-        console.log("Descriptions:", CKEDITOR.instances['editor1'].getData());
-        console.log("Required Job List:", CKEDITOR.instances['editor2'].getData());
-        console.log("Employee Benefit List:", CKEDITOR.instances['editor3'].getData());
 
         createJob();
     }, 100);
@@ -305,6 +308,7 @@ function updatePagination(data, paginationId) {
 }
 
 document.querySelector('a[href="#get-job"]').addEventListener('shown.bs.tab', () => {
+    document.getElementById("editJobForm").style.display = "none";
     currentPageRecruiter = 0;
     loadJobsByState();
 });
@@ -536,6 +540,182 @@ async function changeInfoCompany() {
     }
 }
 
+function convertDateToInputFormat(dateStr) {
+    const [day, month, year] = dateStr.split('/');
+    return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+}
+
+async function showEditForm(jobId) {
+    const token = localStorage.getItem('token');
+
+    try {
+        const response = await fetch(`http://localhost:8086/api/v1/job/descriptions?jobId=${jobId}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        const result = await response.json();
+        console.log(result);
+        if (!response.ok) {
+            if (result.message === "INVALID_FIELD" && typeof result.error === "object") {
+                // Gộp tất cả lỗi lại thành 1 chuỗi
+                const errorMessages = Object.entries(result.error)
+                    .map(([field, message]) => `${field}: ${message}`)
+                    .join("\n");
+                throw new Error(errorMessages);
+            }
+            throw new Error(result.message);
+        }
+
+        // Ẩn danh sách
+        document.getElementById("jobList").style.display = "none";
+        document.getElementById("pagination").style.display = "none";
+
+        // Hiện form sửa
+        document.getElementById("editJobForm").style.display = "block";
+
+        // Đổ dữ liệu vào form
+        document.getElementById('name-job-edit').value = result.data.jobName;
+        document.getElementById('occupation-edit').value = result.data.occupationName;
+        document.getElementById('experience-edit').value = result.data.experience;
+        document.getElementById('head-count-edit').value = result.data.headCount;
+        const expiration = result.data.expirationDate; 
+        document.getElementById('expiration-date-edit').value = convertDateToInputFormat(expiration);
+        document.getElementById('province-edit').value = result.data.province;
+        document.getElementById('address-edit').value = result.data.address;
+        document.getElementById('jobType-edit').value = result.data.jobType;
+        document.getElementById('jobLevel-edit').value = result.data.jobLevel;
+        document.getElementById('min-salary-edit').value = result.data.minSalary;
+        document.getElementById('max-salary-edit').value = result.data.maxSalary;
+        document.getElementById('educationLevel-edit').value = result.data.educationLevel;
+        
+        setTimeout(() => {
+            if (CKEDITOR.instances['editor1-1']) CKEDITOR.instances['editor1-1'].setData(result.data.descriptions || '');
+            if (CKEDITOR.instances['editor2-2']) CKEDITOR.instances['editor2-2'].setData(result.data.requiredJobList || '');
+            if (CKEDITOR.instances['editor3-3']) CKEDITOR.instances['editor3-3'].setData(result.data.employeeBenefitList || '');
+        }, 500);
+
+        // Gán lại sự kiện cho 3 nút
+        document.getElementById('cancelEditJob').onclick = () => {
+            document.getElementById("editJobForm").style.display = "none";
+            document.getElementById("jobList").style.display = "block";
+            document.getElementById("pagination").style.display = "flex";
+        };
+
+        document.getElementById('deleteJobBtn').onclick = async () => {
+            if (confirm('Bạn có chắc chắn muốn xóa công việc này?')) {
+                await deleteJob(jobId);
+            }
+        };
+
+        document.getElementById('updateJobBtn').onclick = async () => {
+            await updateJob(jobId);
+        };
+
+    } catch (error) {
+        alert(error.message);
+    }
+}
+
+async function updateJob(jobId) {
+    const token = localStorage.getItem('token');
+
+    try {
+        // Update dữ liệu từ CKEditor vào textarea
+        CKEDITOR.instances['editor1-1'].updateElement();
+        CKEDITOR.instances['editor2-2'].updateElement();
+        CKEDITOR.instances['editor3-3'].updateElement();
+
+        // Lấy dữ liệu từ form
+        const data = {
+            jobName: document.getElementById('name-job-edit').value,
+            occupationName: document.getElementById('occupation-edit').value,
+            experience: document.getElementById('experience-edit').value,
+            headCount: document.getElementById('head-count-edit').value,
+            expirationDate: new Date(document.getElementById('expiration-date-edit').value).toISOString(),
+            province: document.getElementById('province-edit').value,
+            address: document.getElementById('address-edit').value,
+            jobType: document.getElementById('jobType-edit').value,
+            jobLevel: document.getElementById('jobLevel-edit').value,
+            minSalary: document.getElementById('min-salary-edit').value,
+            maxSalary: document.getElementById('max-salary-edit').value,
+            educationLevel: document.getElementById('educationLevel-edit').value,
+            descriptions: cleanCKEditorContent(CKEDITOR.instances['editor1-1'].getData()),
+            requiredJobList: cleanCKEditorContent(CKEDITOR.instances['editor2-2'].getData()),
+            employeeBenefitList: cleanCKEditorContent(CKEDITOR.instances['editor3-3'].getData())
+        };
+
+        console.log("Data gửi lên server:", data);
+
+        const response = await fetch(`http://localhost:8086/api/v1/job/update?jobId=${jobId}`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            if (result.message === "INVALID_FIELD" && typeof result.error === "object") {
+                // Gộp tất cả lỗi lại thành 1 chuỗi
+                const errorMessages = Object.entries(result.error)
+                    .map(([field, message]) => `${field}: ${message}`)
+                    .join("\n");
+                throw new Error(errorMessages);
+            }
+            throw new Error(result.message);
+        }
+
+        alert('Cập nhật công việc thành công!');
+        location.reload();
+    } catch (error) {
+        alert(error.message);
+    }
+}
+
+async function deleteJob(jobId) {
+    const token = localStorage.getItem('token');
+
+    try {
+        const response = await fetch(`http://localhost:8086/api/v1/job/delete?jobId=${jobId}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            if (result.message === "INVALID_FIELD" && typeof result.error === "object") {
+                // Gộp tất cả lỗi lại thành 1 chuỗi
+                const errorMessages = Object.entries(result.error)
+                    .map(([field, message]) => `${field}: ${message}`)
+                    .join("\n");
+                throw new Error(errorMessages);
+            }
+            throw new Error(result.message);
+        }
+
+        alert('Xóa công việc thành công!');
+        location.reload();
+    } catch (error) {
+        alert(error.message);
+    }
+}
+
+
+document.querySelector('a[href="#change-info"]').addEventListener('shown.bs.tab', () => {
+    document.getElementById("editJobForm").style.display = "none";
+});
+
+document.querySelector('a[href="#post-job"]').addEventListener('shown.bs.tab', () => {
+    document.getElementById("editJobForm").style.display = "none";
+});
 
 document.addEventListener("DOMContentLoaded", function () {
     getInfomationUser();
@@ -544,6 +724,9 @@ document.addEventListener("DOMContentLoaded", function () {
     if (document.getElementById('editor2')) CKEDITOR.replace('editor2');
     if (document.getElementById('editor3')) CKEDITOR.replace('editor3');
     if (document.getElementById('editor4')) CKEDITOR.replace('editor4');
+    if (document.getElementById('editor1-1')) CKEDITOR.replace('editor1-1');
+    if (document.getElementById('editor2-2')) CKEDITOR.replace('editor2-2');
+    if (document.getElementById('editor3-3')) CKEDITOR.replace('editor3-3');
     loadJobsByState();
 
     const avatarImg = localStorage.getItem('avatarImg');
