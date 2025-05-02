@@ -24,14 +24,14 @@ async function getJobDescription(jobId) {
         console.log(result);
 
         if (!response.ok) {
-            if (data.message === "INVALID_FIELD" && typeof data.error === "object") {
+            if (result.message === "INVALID_FIELD" && typeof result.error === "object") {
                 // Gộp tất cả lỗi lại thành 1 chuỗi
-                const errorMessages = Object.entries(data.error)
+                const errorMessages = Object.entries(result.error)
                     .map(([field, message]) => `${field}: ${message}`)
                     .join("\n");
                 throw new Error(errorMessages);
             }
-            throw new Error(data.message);
+            throw new Error(result.message);
         }
 
         const job = result.data;
@@ -316,14 +316,14 @@ async function appliedJob(jobId) {
 
         const result = await response.json();
         if (!response.ok) {
-            if (data.message === "INVALID_FIELD" && typeof data.error === "object") {
+            if (result.message === "INVALID_FIELD" && typeof result.error === "object") {
                 // Gộp tất cả lỗi lại thành 1 chuỗi
-                const errorMessages = Object.entries(data.error)
+                const errorMessages = Object.entries(result.error)
                     .map(([field, message]) => `${field}: ${message}`)
                     .join("\n");
                 throw new Error(errorMessages);
             }
-            throw new Error(data.message);
+            throw new Error(result.message);
         }
 
         alert("Nộp đơn ứng tuyển thành công");

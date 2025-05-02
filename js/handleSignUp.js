@@ -62,17 +62,17 @@ async function getCode(username) {
         });
 
         console.log(response)
-        const data = await response.json();
+        const result = await response.json();
         console.log(data)
         if (!response.ok) {
-            if (data.message === "INVALID_FIELD" && typeof data.error === "object") {
+            if (result.message === "INVALID_FIELD" && typeof result.error === "object") {
                 // Gộp tất cả lỗi lại thành 1 chuỗi
-                const errorMessages = Object.entries(data.error)
+                const errorMessages = Object.entries(result.error)
                     .map(([field, message]) => `${field}: ${message}`)
                     .join("\n");
                 throw new Error(errorMessages);
             }
-            throw new Error(data.message);
+            throw new Error(result.message);
         }
 
         localStorage.setItem("username", username);
@@ -111,10 +111,17 @@ async function recoverPassword(formData) {
             body: JSON.stringify(formData)
         });
 
-        const data = await response.json();
+        const result = await response.json();
 
         if (!response.ok) {
-            throw new Error(data.message);
+            if (result.message === "INVALID_FIELD" && typeof result.error === "object") {
+                // Gộp tất cả lỗi lại thành 1 chuỗi
+                const errorMessages = Object.entries(result.error)
+                    .map(([field, message]) => `${field}: ${message}`)
+                    .join("\n");
+                throw new Error(errorMessages);
+            }
+            throw new Error(result.message);
         }
 
         localStorage.removeItem("username");

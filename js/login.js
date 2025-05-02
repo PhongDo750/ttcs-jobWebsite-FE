@@ -10,26 +10,26 @@ async function loginRequest(username, password) {
         body : JSON.stringify({username, password})
     });
 
-    const data = await response.json();
+    const result = await response.json();
+    console.log(result);
 
     if (!response.ok) {
-        if (data.message === "INVALID_FIELD" && typeof data.error === "object") {
+        if (result.message === "INVALID_FIELD" && typeof result.error === "object") {
             // Gộp tất cả lỗi lại thành 1 chuỗi
-            const errorMessages = Object.entries(data.error)
+            const errorMessages = Object.entries(result.error)
                 .map(([field, message]) => `${field}: ${message}`)
                 .join("\n");
             throw new Error(errorMessages);
         }
-        throw new Error(data.message);
+        throw new Error(result.message);
     }
-    console.log(data.role);
 
-    localStorage.setItem("token", data.accessToken);
-    localStorage.setItem("role", data.role);
+    localStorage.setItem("token", result.data.accessToken);
+    localStorage.setItem("role", result.data.role);
 
-    if (data.role === 'USER') {
+    if (result.data.role === 'USER') {
         window.location.href = "/components/main.html";
-    } else if(data.role === 'RECRUITER'){
+    } else if(result.data.role === 'RECRUITER'){
         window.location.href = "/components/recruiter/recruiter.html";
     } else {
         window.location.href = "/components/admin/admin.html";

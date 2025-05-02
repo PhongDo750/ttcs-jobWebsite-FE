@@ -8,22 +8,21 @@ async function register(formData) {
             body : JSON.stringify(formData)
         });
 
-        const data = await response.json();
-        console.log(data)
+        const result = await response.json();
 
 
         if (!response.ok) {
-            if (data.message === "INVALID_FIELD" && typeof data.error === "object") {
+            if (result.message === "INVALID_FIELD" && typeof result.error === "object") {
                 // Gộp tất cả lỗi lại thành 1 chuỗi
-                const errorMessages = Object.entries(data.error)
+                const errorMessages = Object.entries(result.error)
                     .map(([field, message]) => `${field}: ${message}`)
                     .join("\n");
                 throw new Error(errorMessages);
             }
-            throw new Error(data.message);
+            throw new Error(result.message);
         }
-        localStorage.setItem("token", data.accessToken);
-        localStorage.setItem("role", data.role);
+        localStorage.setItem("token", result.data.accessToken);
+        localStorage.setItem("role", result.data.role);
 
         window.location.href = "/components/login/login.html"
     } catch (error) {

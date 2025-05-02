@@ -85,7 +85,14 @@ async function loadNotifications(reset = false) {
 
         const result = await response.json();
         if (!response.ok) {
-            throw new Error(result.data.message);
+            if (result.message === "INVALID_FIELD" && typeof result.error === "object") {
+                // Gộp tất cả lỗi lại thành 1 chuỗi
+                const errorMessages = Object.entries(result.error)
+                    .map(([field, message]) => `${field}: ${message}`)
+                    .join("\n");
+                throw new Error(errorMessages);
+            }
+            throw new Error(result.message);
         }
 
         renderNotifications(result.data.content, reset);
@@ -175,7 +182,14 @@ async function countNotiHasNotSeen() {
 
         const result = await response.json()
         if (!response.ok) {
-            throw new Error(result.data.message);
+            if (result.message === "INVALID_FIELD" && typeof result.error === "object") {
+                // Gộp tất cả lỗi lại thành 1 chuỗi
+                const errorMessages = Object.entries(result.error)
+                    .map(([field, message]) => `${field}: ${message}`)
+                    .join("\n");
+                throw new Error(errorMessages);
+            }
+            throw new Error(result.message);
         }
 
 
