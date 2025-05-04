@@ -5,42 +5,31 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     let reg = await navigator.serviceWorker.ready; // Kiểm tra Service Worker đã sẵn sàng
-    let subscription = await reg.pushManager.getSubscription(); // Kiểm tra subscription
+    let subscription = await reg.pushManager.getSubscription(); // Kiểm tra subscriptions
+    console.log("sub", subscription);
 
-    console.log(subscription);
+    const permission = Notification.permission;
 
     if (!subscription) {
-        console.log("📌 Chưa có đăng ký thông báo, hỏi người dùng...");
-        showNotificationModal();
-    }
-});
-
-// ✅ Hiển thị modal hỏi quyền thông báo
-function showNotificationModal() {
-    let notificationModal = new bootstrap.Modal(document.getElementById("notificationModal"));
-    notificationModal.show();
-
-    document.getElementById("allow-notifications").addEventListener("click", async () => {
-        let permission = await Notification.requestPermission();
         if (permission === "granted") {
-            console.log("✅ Người dùng đã cấp quyền thông báo!");
             await registerServiceWorkerAndSubscribe();
+            alert("Đăng ký thông báo thành công");
+            return;
         }
-        notificationModal.hide();
-        alert("Đăng ký thông báo thành công");
-    });
+    }
 
-    document.getElementById("deny-notifications").addEventListener("click", async () => {
-        await removeSubscriptionFromServer();
-        notificationModal.hide();
-        alert("Hủy thông báo thành công");
-    });
-}
+    if(permission === "denied" && localStorage.getItem("sub")) {
+        await unsubscribeFromPushNotifications();
+        localStorage.removeItem("sub");
+        return;
+    }
+
+});
 
 // ✅ Đăng ký Service Worker & Push Notification
 async function registerServiceWorkerAndSubscribe() {
     try {
-        let reg = await navigator.serviceWorker.register("/sw.js");
+        let reg = await navigator.serviceWorker.register("/js/sw.js");
         console.log("✅ Service Worker đăng ký thành công:", reg);
 
         let readyReg = await navigator.serviceWorker.ready;
@@ -51,13 +40,33 @@ async function registerServiceWorkerAndSubscribe() {
             subscription = await subscribeToPushNotifications(readyReg);
             if (subscription) {
                 await sendSubscriptionToServer(subscription);
-                localStorage.setItem("subscription", subscription);
             }
         } else {
             console.log("📌 Subscription đã tồn tại:", subscription);
         }
     } catch (error) {
         console.error("❌ Lỗi khi đăng ký Service Worker:", error);
+    }
+}
+
+async function unsubscribeFromPushNotifications() {
+    const accessToken = localStorage.getItem("token");
+
+    try {
+        // Gửi request hủy lên server (chỉ cần token)
+        const response = await fetch("http://localhost:8086/api/v1/push-notification/unsubscribe", {
+            method: "DELETE",
+            headers: {
+                "Authorization": `Bearer ${accessToken}`
+            }
+        });
+
+        if (!response.ok) throw new Error("Server trả về lỗi.");
+        console.log("✅ Đã thông báo server hủy thành công.");
+        alert("Hủy thông báo thành công");
+    } catch (error) {
+        console.error("❌ Lỗi khi hủy đăng ký thông báo:", error);
+        alert("Đã xảy ra lỗi khi hủy nhận thông báo.");
     }
 }
 
@@ -78,6 +87,7 @@ async function subscribeToPushNotifications(reg) {
         });
 
         console.log("✅ Đăng ký Push thành công:", subscription);
+        localStorage.setItem("sub", subscription);
         return subscription;
     } catch (error) {
         console.error("❌ Lỗi khi đăng ký Push:", error);

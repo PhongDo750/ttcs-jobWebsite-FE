@@ -37,6 +37,9 @@ async function getInfomationUser() {
         const recruiter = result.data;
         localStorage.setItem("bgImg", recruiter.backgroundImage);
         localStorage.setItem("avatarImg", recruiter.imageUrl);
+        localStorage.setItem("nameCompany", recruiter.fullName);
+        localStorage.setItem("addressCompany", recruiter.address);
+        localStorage.setItem("descriptionCompany", recruiter.description);
         const recruiterInfoContainer = document.getElementById('recruiter-info');
         recruiterInfoContainer.innerHTML = '';
 
@@ -484,6 +487,21 @@ async function changeInfoCompany() {
         const backgroundImg = document.getElementById('backgroundImg').files[0];
         const description = cleanCKEditorContent(CKEDITOR.instances['editor4'].getData());
 
+        if (!fullName.trim()) {
+            alert("Vui lòng nhập tên công ty!");
+            return;
+        }
+        
+        if (!address.trim()) {
+            alert("Vui lòng nhập địa chỉ!");
+            return;
+        }
+        
+        if (!description.trim()) {
+            alert("Vui lòng nhập mô tả!");
+            return;
+        }
+
         // Chuẩn bị dữ liệu JSON
         const userData = {
             fullName,
@@ -528,8 +546,6 @@ async function changeInfoCompany() {
         }
 
         alert("Cập nhật thông tin thành công!");
-        localStorage.setItem("bgImg", backgroundImg);
-        localStorage.setItem("avatarImg", avatar);
         location.reload();
     } catch (error) {
         alert(`Lỗi cập nhật: ${error.message}`);
@@ -711,6 +727,31 @@ async function deleteJob(jobId) {
 
 document.querySelector('a[href="#change-info"]').addEventListener('shown.bs.tab', () => {
     document.getElementById("editJobForm").style.display = "none";
+    const avatarImg = localStorage.getItem('avatarImg');
+    const bgImg = localStorage.getItem('bgImg');
+    const addressCompany = localStorage.getItem('addressCompany');
+    const nameCompany = localStorage.getItem('nameCompany');
+    const descriptionCompany = localStorage.getItem('descriptionCompany');
+
+    if (avatarImg) {
+        document.getElementById('avatarPreview').src = avatarImg;
+    }
+
+    if (bgImg) {
+        document.getElementById('backgroundPreview').src = bgImg;
+    }
+
+    if (addressCompany) {
+        document.getElementById('address-1').value = addressCompany;
+    }
+
+    if(nameCompany) {
+        document.getElementById('nameCompany').value = nameCompany;
+    }
+
+    if (descriptionCompany && CKEDITOR.instances['editor4']) {
+        CKEDITOR.instances['editor4'].setData(descriptionCompany);
+    }
 });
 
 document.querySelector('a[href="#post-job"]').addEventListener('shown.bs.tab', () => {
@@ -728,15 +769,4 @@ document.addEventListener("DOMContentLoaded", function () {
     if (document.getElementById('editor2-2')) CKEDITOR.replace('editor2-2');
     if (document.getElementById('editor3-3')) CKEDITOR.replace('editor3-3');
     loadJobsByState();
-
-    const avatarImg = localStorage.getItem('avatarImg');
-    const bgImg = localStorage.getItem('bgImg');
-
-    if (avatarImg) {
-        document.getElementById('avatarPreview').src = avatarImg;
-    }
-
-    if (bgImg) {
-        document.getElementById('backgroundPreview').src = bgImg;
-    }
 });
