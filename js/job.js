@@ -66,7 +66,7 @@ function fetchJobs(filters, currentPage, pageSize) {
     console.log("currentPage: ", currentPage);
 
     const queryParams = new URLSearchParams(filteredParams).toString();
-    const url = `${baseUrl}?${queryParams}&page=${currentPage}&size=${pageSize}`;
+    const url = `${baseUrl}?${queryParams}&page=${currentPage}&size=${pageSize}&sort=createAt,desc`;
 
     console.log("API URL:", url);
 

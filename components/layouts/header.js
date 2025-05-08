@@ -169,37 +169,37 @@ function renderNotifications(notifications, reset) {
 }
 
 //countNotifi
-async function countNotiHasNotSeen() {
-    const token = localStorage.getItem("token");
-    try {
-        const response = await fetch('http://localhost:8086/api/v1/notifications/count', {
-            method: "GET",
-            headers: {
-                "Authorization": `Bearer ${token}`,
-                "Content-Type": "application/json"
-            }
-        })
+// async function countNotiHasNotSeen() {
+//     const token = localStorage.getItem("token");
+//     try {
+//         const response = await fetch('http://localhost:8086/api/v1/notifications/count', {
+//             method: "GET",
+//             headers: {
+//                 "Authorization": `Bearer ${token}`,
+//                 "Content-Type": "application/json"
+//             }
+//         })
 
-        const result = await response.json()
-        if (!response.ok) {
-            if (result.message === "INVALID_FIELD" && typeof result.error === "object") {
-                // Gộp tất cả lỗi lại thành 1 chuỗi
-                const errorMessages = Object.entries(result.error)
-                    .map(([field, message]) => `${field}: ${message}`)
-                    .join("\n");
-                throw new Error(errorMessages);
-            }
-            throw new Error(result.message);
-        }
+//         const result = await response.json()
+//         if (!response.ok) {
+//             if (result.message === "INVALID_FIELD" && typeof result.error === "object") {
+//                 // Gộp tất cả lỗi lại thành 1 chuỗi
+//                 const errorMessages = Object.entries(result.error)
+//                     .map(([field, message]) => `${field}: ${message}`)
+//                     .join("\n");
+//                 throw new Error(errorMessages);
+//             }
+//             throw new Error(result.message);
+//         }
 
 
-        count = result.data;
+//         count = result.data;
 
-        updateNotificationBadge();
-    } catch (error) {
-        alert(error.message);
-    }
-}
+//         updateNotificationBadge();
+//     } catch (error) {
+//         alert(error.message);
+//     }
+// }
 
 function updateNotificationBadge() {
     const badge = document.getElementById("notificationCount");
@@ -217,6 +217,44 @@ function updateNotificationBadge() {
     }
 }
 
+function initWebSocket() {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    // Đã có socket toàn cục và đang mở? Không tạo lại
+    if (window.globalSocket && window.globalSocket.readyState === WebSocket.OPEN) {
+        console.log("⚠️ WebSocket đã kết nối, không tạo lại");
+        return;
+    }
+
+    const socket = new WebSocket(`ws://localhost:8086/notification?${token}`);
+    window.globalSocket = socket; // Lưu socket vào window để không bị mất khi chuyển trang SPA
+
+    socket.onopen = () => {
+        console.log("🔌 WebSocket connected");
+    };
+
+    socket.onmessage = (event) => {
+        const message = JSON.parse(event.data);
+        console.log("🔔 Nhận WebSocket:", message);
+
+        if (message.type === "notiCount") {
+            count = message.count;
+            updateNotificationBadge();
+        }
+    };
+
+    socket.onerror = (error) => {
+        console.error("❌ WebSocket error:", error);
+    };
+
+    socket.onclose = () => {
+        console.warn("⚠️ WebSocket closed, sẽ reconnect sau 3s...");
+        window.globalSocket = null;
+        setTimeout(initWebSocket, 3000);
+    };
+}
+
 // Gọi loadNavbar khi DOM đã tải xong
 document.addEventListener("DOMContentLoaded", () => {
     loadNavbar('navbar-container'); // Đảm bảo phần tử này tồn tại trong HTML
@@ -226,5 +264,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const role = localStorage.getItem('role');
     if (role === 'USER') {
         document.getElementById("userInfoMenu").style.display = "block";
+    }
+
+    const token = localStorage.getItem("token");
+
+    // Luôn kiểm tra và khởi tạo nếu cần
+    if (token) {
+        initWebSocket();
     }
 });

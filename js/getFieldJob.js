@@ -75,6 +75,30 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("jobType").value = jobType;
     }
 
+    function selectOccupationEdit(occupation) {
+        document.getElementById("occupation-edit").value = occupation;
+    }
+
+    function selectProvinceEdit(province) {
+        document.getElementById("province-edit").value = province;
+    }
+
+    function selectExperienceEdit(experience) {
+        document.getElementById("experience-edit").value = experience;
+    }
+
+    function selectJobLevelEdit(jobLevel) {
+        document.getElementById("jobLevel-edit").value = jobLevel;
+    }
+
+    function selectEducationLevelEdit(educationLevel) {
+        document.getElementById("educationLevel-edit").value = educationLevel;
+    }
+
+    function selectTypeLevelEdit(jobType) {
+        document.getElementById("jobType-edit").value = jobType;
+    }
+
     // Áp dụng cho nghề nghiệp và tỉnh thành
     loadDropdownData("occupation", "occupationList", "/js/statics/occupations.json", selectOccupation);
     loadDropdownData("province", "provinceList", "/js/statics/provinces.json", selectProvince);
@@ -82,5 +106,11 @@ document.addEventListener("DOMContentLoaded", function () {
     loadDropdownData("jobLevel", "jobLevelList", "/js/statics/jobLevel.json", selectJobLevel);
     loadDropdownData("educationLevel", "educationLevelList", "/js/statics/educationLevel.json", selectEducationLevel);
     loadDropdownData("jobType", "jobTypeList", "/js/statics/jobType.json", selectTypeLevel);
+    loadDropdownData("occupation-edit", "occupationListEdit", "/js/statics/occupations.json", selectOccupationEdit);
+    loadDropdownData("province-edit", "provinceListEdit", "/js/statics/provinces.json", selectProvinceEdit);
+    loadDropdownData("experience-edit", "experienceListEdit", "/js/statics/experience.json", selectExperienceEdit);
+    loadDropdownData("jobLevel-edit", "jobLevelListEdit", "/js/statics/jobLevel.json", selectJobLevelEdit);
+    loadDropdownData("educationLevel-edit", "educationLevelListEdit", "/js/statics/educationLevel.json", selectEducationLevelEdit);
+    loadDropdownData("jobType-edit", "jobTypeListEdit", "/js/statics/jobType.json", selectTypeLevelEdit);
 });
 

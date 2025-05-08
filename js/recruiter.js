@@ -81,7 +81,7 @@ async function getJobOfRecruiter(currentPageRecruiter, pageSizeRecruiter) {
             return;
         }
 
-        const response = await fetch(`http://localhost:8086/api/v1/recruiter?page=${currentPageRecruiter}&size=${pageSizeRecruiter}`, {
+        const response = await fetch(`http://localhost:8086/api/v1/recruiter?page=${currentPageRecruiter}&size=${pageSizeRecruiter}&sort=createAt,desc`, {
             method: "GET",
             headers: {
                 "Authorization": `Bearer ${token}`
@@ -321,7 +321,7 @@ async function loadJobsByState() {
         const state = document.getElementById('jobState').value;
         const accessToken = localStorage.getItem('token');
 
-        const response = await fetch(`http://localhost:8086/api/v1/recruiter/state?state=${state}&page=${currentPageRecruiter}&size=${pageSizeRecruiter}`, {
+        const response = await fetch(`http://localhost:8086/api/v1/recruiter/state?state=${state}&page=${currentPageRecruiter}&size=${pageSizeRecruiter}&sort=createAt,desc`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${accessToken}`
@@ -355,7 +355,7 @@ async function loadJobsByState() {
                 <td>${job.expirationDate}</td>
                 ${state === "PENDING_APPROVAL" ? `
                 <td>
-                    <button class="btn bg-custom btn-sm accept-btn" data-job-id="${job.id}">Chấp nhận</button>
+                    <button class="btn bg-custom btn-sm accept-btn text-white-custom" data-job-id="${job.id}">Chấp nhận</button>
                     <button class="btn btn-danger btn-sm reject-btn" data-job-id="${job.id}">Từ chối</button>
                 </td>` : ''}
             `;
