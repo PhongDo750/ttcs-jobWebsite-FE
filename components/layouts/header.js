@@ -114,7 +114,7 @@ function setupScrollEvent() {
         const nearBottom = notificationList.scrollTop + notificationList.clientHeight >= notificationList.scrollHeight - 20;
         if (nearBottom && !isLoading) {
             loadNotifications();
-            countNotiHasNotSeen();
+//            countNotiHasNotSeen();
         }
     });
 }
@@ -255,10 +255,11 @@ function initWebSocket() {
     };
 }
 
+
 // Gọi loadNavbar khi DOM đã tải xong
 document.addEventListener("DOMContentLoaded", () => {
     loadNavbar('navbar-container'); // Đảm bảo phần tử này tồn tại trong HTML
-    countNotiHasNotSeen();
+//    countNotiHasNotSeen();
     setupScrollEvent(); // Gọi sự kiện cuộn sau khi navbar đã load
 
     const role = localStorage.getItem('role');
