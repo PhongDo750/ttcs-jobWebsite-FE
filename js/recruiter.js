@@ -1,5 +1,5 @@
 let currentPageRecruiter = 0;
-const pageSizeRecruiter= 5;
+let pageSizeRecruiter= 5;
 document.querySelector('a[href="#info"]').addEventListener('shown.bs.tab', () => {
     document.getElementById("editJobForm").style.display = "none";
     document.getElementById("jobList").style.display = "block";
@@ -724,6 +724,16 @@ async function deleteJob(jobId) {
     }
 }
 
+function onPageSizeChange() {
+    const inputSize = parseInt(document.getElementById('pageSizeRecruiter').value);
+    
+    // Kiểm tra nếu giá trị hợp lệ
+    if (!isNaN(inputSize) && inputSize > 0) {
+        pageSizeRecruiter = inputSize;
+        currentPageRecruiter = 0; // Reset về trang đầu
+        loadJobsByState();
+    }
+}
 
 document.querySelector('a[href="#change-info"]').addEventListener('shown.bs.tab', () => {
     document.getElementById("editJobForm").style.display = "none";

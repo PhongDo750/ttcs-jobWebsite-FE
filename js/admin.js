@@ -42,7 +42,10 @@ async function getAllUsers(currentPageAdmin, pageSizeAdmin) {
                 <td>${user.email}</td>
                 <td>${user.role}</td>
                 <td>${user.birthday ? new Date(user.birthday).toISOString().split('T')[0] : ''}</td>
-                <td><button class="btn btn-danger btn-sm delete-btn" data-user-id="${user.id}">Xóa tài khoản</button></td>
+                <td>
+                    <button class="btn btn-danger btn-sm delete-btn" data-user-id="${user.id}">Xóa tài khoản</button>
+                    ${user.username ? `<button class="btn bg-custom btn-sm login-btn" data-user-id="${user.id}">Đăng nhập</button>` : ''}
+                </td>
             `;
 
             userListContent.appendChild(userItem);
@@ -52,6 +55,13 @@ async function getAllUsers(currentPageAdmin, pageSizeAdmin) {
             button.addEventListener("click", (event) => {
                 const userId = event.target.dataset.userId;
                 deleteUser(userId);
+            });
+        });
+
+        document.querySelectorAll(".login-btn").forEach(button => {
+            button.addEventListener("click", (event) => {
+                const userId = event.target.dataset.userId;
+                loginById(userId);
             });
         });
 
@@ -132,6 +142,41 @@ async function deleteUser(id) {
         alert("User đã được xóa");
         countUsers();
         getAllUsers(currentPageAdmin, pageSizeAdmin);
+    } catch (error) {
+        alert(error.message);
+    }
+}
+
+async function loginById(id) {
+    const accessToken = localStorage.getItem("token");
+    try {
+        const response = await fetch(`http://localhost:8086/api/v1/admin/login?userId=${id}`, {
+            method: "POST",
+            headers : {
+                'Authorization': `Bearer ${accessToken}`
+            }
+        })
+
+        const result = await response.json()
+
+        if (!response.ok) {
+            if (result.message === "INVALID_FIELD" && typeof result.error === "object") {
+                // Gộp tất cả lỗi lại thành 1 chuỗi
+                const errorMessages = Object.entries(result.error)
+                    .map(([field, message]) => `${field}: ${message}`)
+                    .join("\n");
+                throw new Error(errorMessages);
+            }
+            throw new Error(result.message);
+        }
+
+        localStorage.setItem("token2", result.data.accessToken);
+
+        if (result.data.role === 'USER') {
+            window.location.href = "/components/main.html";
+        } else if(result.data.role === 'RECRUITER'){
+            window.location.href = "/components/recruiter/recruiter.html";
+        }
     } catch (error) {
         alert(error.message);
     }

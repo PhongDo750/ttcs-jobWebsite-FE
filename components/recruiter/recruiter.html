@@ -212,12 +212,24 @@
 
                 <div id="get-job" class="tab-pane fade">
                     <h2 class="mb-3">Danh sách ứng viên</h2>
-                    <select id="jobState" class="form-select w-25" onchange="loadJobsByState(); toggleActionColumn()">
-                        <option value="ALL">Tất cả</option>
-                        <option value="PENDING_APPROVAL">Chờ xét duyệt</option>
-                        <option value="ACCEPTED">Đã duyệt</option>
-                        <option value="REJECTED">Từ chối</option>
-                    </select>
+                    <div class="d-flex align-items-end gap-3 mb-3">
+                        <div>
+                            <label for="jobState">Trạng thái:</label>
+                            <select id="jobState" class="form-select" onchange="loadJobsByState(); toggleActionColumn()">
+                                <option value="ALL">Tất cả</option>
+                                <option value="PENDING_APPROVAL">Chờ xét duyệt</option>
+                                <option value="ACCEPTED">Đã duyệt</option>
+                                <option value="REJECTED">Từ chối</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="pageSizeRecruiter">Số lượng mỗi trang:</label>
+                            <input type="number" id="pageSizeRecruiter" class="form-control"
+                            value="5" min="1" onchange="onPageSizeChange()" />
+                        </div>
+                    </div>
+
         
                     <div id="job-list" class="mt-4">
                         <table class="table table-bordered">
