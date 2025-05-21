@@ -24,15 +24,17 @@ async function loginRequest(username, password) {
         throw new Error(result.message);
     }
 
-    localStorage.setItem("token", result.data.accessToken);
     localStorage.setItem("role", result.data.role);
 
     if (result.data.role === 'USER') {
         window.location.href = "/components/main.html";
+        localStorage.setItem("token", result.data.accessToken);
     } else if(result.data.role === 'RECRUITER'){
         window.location.href = "/components/recruiter/recruiter.html";
+        localStorage.setItem("token", result.data.accessToken);
     } else {
         window.location.href = "/components/admin/admin.html";
+        localStorage.setItem("tokenAdmin", result.data.accessToken);
     }
    } catch(error) {
         alert(error.message);

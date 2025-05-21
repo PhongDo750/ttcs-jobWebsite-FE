@@ -7,7 +7,7 @@ document.querySelector('a[href="#userManagement"]').addEventListener('shown.bs.t
 
 async function getAllUsers(currentPageAdmin, pageSizeAdmin) {
     try {
-        const accessToken = localStorage.getItem('token');
+        const accessToken = localStorage.getItem('tokenAdmin');
 
         const response = await fetch(`http://localhost:8086/api/v1/admin?page=${currentPageAdmin}&size=${pageSizeAdmin}`, {
             method: 'GET',
@@ -34,21 +34,35 @@ async function getAllUsers(currentPageAdmin, pageSizeAdmin) {
         userListContent.innerHTML = ''; // Xóa nội dung cũ
 
         users.forEach(user => {
-            const userItem = document.createElement('tr'); // Tạo <tr>
+            const userItem = document.createElement('tr');
+
+            const username = user.username ? user.username : '<span class="badge bg-secondary">Google</span>';
+            const email = user.email || '<span class="text-muted fst-italic">Không có</span>';
+            const birthday = user.birthday
+                ? new Date(user.birthday).toISOString().split('T')[0]
+                : '<span class="text-muted">—</span>';
 
             userItem.innerHTML = `
-                <td>${user.username ? user.username : "Tài khoản Google"}</td>
+                <td>${username}</td>
                 <td>${user.fullName}</td>
-                <td>${user.email}</td>
-                <td>${user.role}</td>
-                <td>${user.birthday ? new Date(user.birthday).toISOString().split('T')[0] : ''}</td>
+                <td>${email}</td>
+                <td><span class="badge ${user.role === 'USER' ? 'bg-primary' : 'bg-success'}">${user.role}</span></td>
+                <td>${birthday}</td>
                 <td>
-                    <button class="btn btn-danger btn-sm delete-btn" data-user-id="${user.id}">Xóa tài khoản</button>
-                    ${user.username ? `<button class="btn bg-custom btn-sm login-btn" data-user-id="${user.id}">Đăng nhập</button>` : ''}
-                </td>
-            `;
+                    <div class="d-flex flex-wrap justify-content-center gap-2">
+                        <button class="btn btn-sm btn-danger px-3 delete-btn" data-user-id="${user.id}">
+                            Xóa
+                        </button>
+                        ${user.username ? `
+                            <button class="btn btn-sm btn-info text-white px-3 login-btn" data-user-id="${user.id}">
+                                Đăng nhập
+                            </button>
+                        ` : ''}
+                    </div>
+            </td>
+        `;
 
-            userListContent.appendChild(userItem);
+        userListContent.appendChild(userItem);
         });
 
         document.querySelectorAll(".delete-btn").forEach(button => {
@@ -73,7 +87,7 @@ async function getAllUsers(currentPageAdmin, pageSizeAdmin) {
 
 async function countUsers() {
     try {
-        const accessToken = localStorage.getItem('token');
+        const accessToken = localStorage.getItem('tokenAdmin');
 
         const response = await fetch(`http://localhost:8086/api/v1/admin/counts`, {
             method: 'GET',
@@ -117,7 +131,7 @@ async function countUsers() {
 }
 
 async function deleteUser(id) {
-    const accessToken = localStorage.getItem("token");
+    const accessToken = localStorage.getItem("tokenAdmin");
     try {
         const response = await fetch(`http://localhost:8086/api/v1/admin/delete?userId=${id}`, {
             method: "DELETE",
@@ -148,7 +162,7 @@ async function deleteUser(id) {
 }
 
 async function loginById(id) {
-    const accessToken = localStorage.getItem("token");
+    const accessToken = localStorage.getItem("tokenAdmin");
     try {
         const response = await fetch(`http://localhost:8086/api/v1/admin/login?userId=${id}`, {
             method: "POST",
@@ -170,7 +184,7 @@ async function loginById(id) {
             throw new Error(result.message);
         }
 
-        localStorage.setItem("token2", result.data.accessToken);
+        localStorage.setItem("token", result.data.accessToken);
 
         if (result.data.role === 'USER') {
             window.location.href = "/components/main.html";
@@ -187,7 +201,7 @@ document.getElementById('search').addEventListener('click', () => {
 })
 
 async function getUserByEmail() {
-    const accessToken = localStorage.getItem("token");
+    const accessToken = localStorage.getItem("tokenAdmin");
     const email = document.getElementById('email').value;
 
     if (email === null || email === '') {
@@ -291,7 +305,7 @@ document.getElementById('searchByMonthAndYear').addEventListener('click', () => 
 
 async function countJobsAndApplicationsInMonth(month, year) {
     try {
-        const accessToken = localStorage.getItem('token');
+        const accessToken = localStorage.getItem('tokenAdmin');
 
         console.log(month, year);
 
@@ -364,7 +378,7 @@ async function countJobsAndApplicationsInMonth(month, year) {
 
 async function getJobsPostedInMonthAndYear(month, year, currentPageAdmin, pageSizeAdmin) {
     try {
-        const accessToken = localStorage.getItem('token');
+        const accessToken = localStorage.getItem('tokenAdmin');
 
         const response = await fetch(`http://localhost:8086/api/v1/admin/jobs?month=${month}&year=${year}&page=${currentPageAdmin}&size=${pageSizeAdmin}`, {
             method: 'GET',
@@ -419,7 +433,7 @@ async function getJobsPostedInMonthAndYear(month, year, currentPageAdmin, pageSi
 }
 
 async function deleteJob(jobId) {
-    const accessToken = localStorage.getItem("token");
+    const accessToken = localStorage.getItem("tokenAdmin");
     try {
         const response = await fetch(`http://localhost:8086/api/v1/admin/job?jobId=${jobId}`, {
             method: "DELETE",
@@ -453,7 +467,7 @@ document.getElementById('searchBtn').addEventListener('click', () => {
 })
 
 async function getJobById() {
-    const accessToken = localStorage.getItem("token");
+    const accessToken = localStorage.getItem("tokenAdmin");
     const code = document.getElementById('code').value;
 
     console.log(code);

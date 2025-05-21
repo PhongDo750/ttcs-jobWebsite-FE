@@ -345,14 +345,32 @@ async function loadJobsByState() {
         const jobListContent = document.getElementById('jobs'); // Đây là <tbody>
         jobListContent.innerHTML = ''; // Xóa nội dung cũ
 
+        const actionColumnHeader = document.getElementById('action-column-header');
+
+        // Nếu state hiện tại là PENDING_APPROVAL thì hiện cột, ngược lại thì ẩn
+        if (actionColumnHeader) {
+            actionColumnHeader.style.display = (state === "PENDING_APPROVAL") ? "" : "none";
+        }
+
+        const stateMap = {
+                PENDING_APPROVAL: { label: 'Chờ duyệt', colorClass: 'badge text-white-custom bg-warning border border-warning' },
+                ACCEPTED: { label: 'Đã duyệt', colorClass: 'badge text-white-custom bg-success border border-success' },
+                REJECTED: { label: 'Từ chối', colorClass: 'badge text-white-custom bg-danger  border border-danger' }
+            };
+
         jobs.forEach(job => {
             const jobItem = document.createElement('tr'); // Tạo <tr>
+
+            const stateInfo = stateMap[job.state] || { label: job.state, colorClass: '' };
 
             jobItem.innerHTML = `
                 <td>${job.userOutput.fullName}</td>
                 <td><a href="${job.cvUrl}" target="_blank">Xem hồ sơ</a></td>
                 <td>${job.jobName}</td>
                 <td>${job.expirationDate}</td>
+                <td class="text-center">
+                    <span class="${stateInfo.colorClass} fw-bold">${stateInfo.label}</span>
+                </td>
                 ${state === "PENDING_APPROVAL" ? `
                 <td>
                     <button class="btn bg-custom btn-sm accept-btn text-white-custom" data-job-id="${job.id}">Chấp nhận</button>

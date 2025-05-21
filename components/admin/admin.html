@@ -46,24 +46,26 @@
                 </div>
 
                 <div id="user-list" class="mt-4">
-                    <table class="table table-bordered">
-                        <thead class="table-dark">
-                            <tr>
-                                <th>Tên tài khoản</th>
-                                <th>Tên người dùng</th>
-                                <th>Email</th>
-                                <th>Loại tài khoản</th>
-                                <th>Ngày sinh</th>
-                                <th>Hành động</th>
-                            </tr>
-                        </thead>
-
-                        <tbody id="users">
-
-                        </tbody>
-
-                    </table>
+                    <div class="table-responsive shadow-sm rounded">
+                        <table class="table table-bordered table-hover align-middle mb-0">
+                            <thead class="table-dark text-center">
+                                <tr>
+                                    <th class="align-middle">Tên tài khoản</th>
+                                    <th class="align-middle">Tên người dùng</th>
+                                    <th class="align-middle">Email</th>
+                                    <th class="align-middle">Loại tài khoản</th>
+                                    <th class="align-middle">Ngày sinh</th>
+                                    <th class="align-middle">Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody id="users" class="text-center">
+                                <!-- Render JS -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
+
+
 
                 <div id="pagination" class="d-flex justify-content-center mt-3 w-80-custom">
                     <!-- Buttons will be dynamically inserted here -->
