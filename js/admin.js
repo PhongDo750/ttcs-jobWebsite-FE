@@ -185,6 +185,7 @@ async function loginById(id) {
         }
 
         localStorage.setItem("token", result.data.accessToken);
+        localStorage.setItem('role', result.data.role);
 
         if (result.data.role === 'USER') {
             window.location.href = "/components/main.html";
@@ -377,6 +378,17 @@ async function countJobsAndApplicationsInMonth(month, year) {
 }
 
 async function getJobsPostedInMonthAndYear(month, year, currentPageAdmin, pageSizeAdmin) {
+    const now = new Date();
+
+    // Nếu month hoặc year không được truyền vào, lấy giá trị hiện tại
+    if (month == null) {
+        month = now.getMonth() + 1; // getMonth() trả về từ 0–11
+    }
+
+    if (year == null) {
+        year = now.getFullYear();
+    }
+
     try {
         const accessToken = localStorage.getItem('tokenAdmin');
 

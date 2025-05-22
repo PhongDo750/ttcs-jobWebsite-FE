@@ -35,6 +35,7 @@ async function loginRequest(username, password) {
     } else {
         window.location.href = "/components/admin/admin.html";
         localStorage.setItem("tokenAdmin", result.data.accessToken);
+        localStorage.setItem("adminRole", result.data.role);
     }
    } catch(error) {
         alert(error.message);
